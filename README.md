@@ -129,9 +129,7 @@ await registry.connect(alice).openDispute(1, "ipfs://alice-dispute-wrong-delta")
 Resolve the dispute by appending a correction:
 
 ```javascript
-await registry
-  .connect(canadaBank)
-  .resolveDispute(
+await registry.connect(canadaBank).resolveDispute(
     1,
     true,
     "ipfs://maple-bank-investigation",
