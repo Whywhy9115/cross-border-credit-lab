@@ -117,17 +117,13 @@ await registry.connect(alice).registerBorrower(aliceIdentityHash, "Canada");
 Submit a Canadian credit record:
 
 ```javascript
-await registry
-  .connect(canadaBank)
-  .submitCreditRecord(alice.address, "loan_repayment", 45, "ipfs://loan-repayment-q1");
+await registry.connect(canadaBank).submitCreditRecord(alice.address, "loan_repayment", 45, "ipfs://loan-repayment-q1");
 ```
 
 Open a dispute:
 
 ```javascript
-await registry
-  .connect(alice)
-  .openDispute(1, "ipfs://alice-dispute-wrong-delta");
+await registry.connect(alice).openDispute(1, "ipfs://alice-dispute-wrong-delta");
 ```
 
 Resolve the dispute by appending a correction:
