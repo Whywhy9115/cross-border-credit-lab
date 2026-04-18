@@ -160,9 +160,7 @@ await registry.getCreditRecord(1);
 Try an unauthorized write:
 
 ```javascript
-await registry
-  .connect(attacker)
-  .submitCreditRecord(alice.address, "fake_record", -100, "ipfs://fake");
+await registry.connect(attacker).submitCreditRecord(alice.address, "fake_record", -100, "ipfs://fake");
 ```
 
 That transaction should revert with:
