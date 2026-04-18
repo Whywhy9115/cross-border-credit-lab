@@ -1,125 +1,230 @@
 # Cross-Border Credit Registry Code Demo
 
-## Carnegie Mellon University
-### Developing Blockchain Use Cases
-### Final Project Code Demo Lab
-### Deliverable: a working GitHub repository and a 5-10 minute video walkthrough
+## Overview
 
-## Learning Objectives
+This repository is a Hardhat code demo for a cross-border credit history system. It implements the smart contract portion of our white paper idea: a portable credit record infrastructure for consumers who move between the United States and Canada.
 
-This code demo implements the blockchain portion of the white paper idea: a portable credit history system for people who move across the United States and Canada.
+The demo shows how blockchain can support:
 
-The demo focuses on four smart contract ideas:
+1. A persistent borrower identity across jurisdictions.
+2. Permissioned credit record updates by authorized institutions.
+3. Append-only credit history, where corrections do not erase prior records.
+4. A disputed-record workflow that tracks who opened the dispute, who resolved it, and what correction was appended.
 
-1. A borrower controls one persistent blockchain identity across jurisdictions.
-2. Only authorized financial institutions can write credit records.
-3. Credit records are append-only, so history is not erased when a correction is needed.
-4. A borrower can dispute a record, and the source institution can resolve the dispute by appending a correction record that references the original record.
+This is a prototype for presentation purposes, not a production credit bureau. Sensitive financial data is represented with hashes and `ipfs://`-style metadata references instead of being stored directly on-chain.
 
-This is not a production credit bureau. It is a small Hardhat prototype designed to show how smart contracts can enforce update permissions and create an auditable correction trail.
+## Repository Contents
 
-## Rubric Alignment
+- `contracts/CrossBorderCreditRegistry.sol`: Solidity contract for borrowers, institutions, records, disputes, and corrections.
+- `scripts/runDemo.js`: Main presentation demo that deploys the contract and walks through the full scenario.
+- `scripts/showState.js`: Small state-inspection script for showing borrower record history.
+- `test/CrossBorderCreditRegistry.js`: Automated tests proving the main contract rules.
+- `DEMO_SCRIPT.md`: Suggested 5-10 minute speaking flow.
+- `WHITEPAPER_ALIGNMENT.md`: Mapping between the white paper idea and the implemented contract behavior.
 
-The course rubric gives the code/demo section the highest score when the demo is well developed, works, suits the economic problem, and explains how blockchain or smart contracts apply to the situation.
+## How To Run
 
-This repository targets that standard by including:
-
-- `contracts/CrossBorderCreditRegistry.sol`: the smart contract for institutions, borrowers, credit records, disputes, and corrections.
-- `scripts/runDemo.js`: a complete walkthrough that prints each transaction step and final borrower history.
-- `test/CrossBorderCreditRegistry.js`: automated tests for authorization, cross-border record writing, disputes, corrections, and blocked unauthorized writers.
-- `DEMO_SCRIPT.md`: a short speaking guide for a 5-10 minute presentation.
-- `WHITEPAPER_ALIGNMENT.md`: a mapping from the white paper claims to concrete contract behavior.
-
-## Part A. Setup
-
-1. Clone this repository and enter the project directory.
+Clone the repository:
 
 ```bash
 git clone https://github.com/Whywhy9115/cross-border-credit-lab.git
 cd cross-border-credit-lab
 ```
 
-2. Install the Hardhat dependencies.
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-3. Compile the smart contract.
+Compile the smart contract:
 
 ```bash
 npm run compile
 ```
 
-E0. Copy the compile output into your notes. What Solidity file was compiled?
-
-E1. Open `contracts/CrossBorderCreditRegistry.sol`. What data is stored directly on-chain, and what data is represented as a hash or URI?
-
-## Part B. Run the Demo
-
-1. Run the complete scripted demo on the local Hardhat network.
+Run the full demo:
 
 ```bash
 npm run demo
 ```
 
-The script deploys the registry and uses five demo accounts:
-
-- Regulator: owns the registry and authorizes institutions.
-- Maple Bank: a Canadian institution.
-- Steel City Credit Union: a United States institution.
-- Alice: a borrower moving across borders.
-- Attacker: an unauthorized account used to prove access control works.
-
-E2. Copy the deployed contract address printed by the script.
-
-E3. Show the two institution authorization steps. Why should this be controlled by the regulator instead of by borrowers?
-
-E4. Show Alice's identity hash. Why is a hash safer than putting a passport number, SSN, SIN, or full credit file directly on-chain?
-
-E5. Copy the original Canadian credit record. What jurisdiction and institution wrote it?
-
-E6. Copy the disputed flag after Alice opens the dispute. Who is allowed to open this dispute?
-
-E7. Copy the correction record. What is the `previousRecordId`, and why is this better than overwriting the original record?
-
-E8. Copy the United States credit record. How does this demonstrate credit portability?
-
-E9. Copy the unauthorized write failure. What smart contract rule blocks the attacker?
-
-## Part C. Run the Tests
-
-1. Run the automated test suite.
+Run the tests:
 
 ```bash
 npm test
 ```
 
-E10. Copy the test result summary.
+## Main Demo Flow
 
-E11. Which test proves that unauthorized accounts cannot write fake records?
+The main command is:
 
-E12. Which test proves that corrections are appended rather than overwritten?
+```bash
+npm run demo
+```
 
-## Part D. Suggested Video Walkthrough
+The script deploys a fresh local contract and uses Hardhat demo accounts for five roles:
 
-For the final video, use this order:
+- Regulator: owns the registry and authorizes institutions.
+- Maple Bank: an authorized Canadian institution.
+- Steel City Credit Union: an authorized United States institution.
+- Alice: a borrower with one portable blockchain identity.
+- Attacker: an unauthorized account used to prove access control works.
 
-1. State the economic problem: credit histories do not port cleanly across the US-Canada border.
-2. Explain the blockchain fit: shared audit trail, persistent borrower identity, institution permissions, append-only correction history.
-3. Open the contract and point to the structs: `Institution`, `Borrower`, `CreditRecord`, and `Dispute`.
-4. Run `npm run demo`.
-5. Explain each printed step using the E2-E9 questions above.
-6. Run `npm test`.
-7. End with limitations: real deployments need privacy-preserving data design, regulator buy-in, off-chain evidence storage, and compliance with financial data laws.
+The script walks through this scenario:
 
-## Key Design Choices
+1. The regulator authorizes Maple Bank and Steel City Credit Union.
+2. Alice registers one portable borrower identity hash.
+3. Maple Bank submits a Canadian loan repayment record for Alice.
+4. Alice disputes that record.
+5. Maple Bank resolves the dispute by appending a correction record.
+6. Steel City Credit Union submits a United States credit card payment record for the same Alice identity.
+7. An unauthorized account tries to submit a fake record and is blocked by the smart contract.
+8. The final output prints Alice's full record history: original Canadian record, correction record, and United States record.
 
-Personal financial details are not stored directly in the contract. The demo uses hashes and `ipfs://`-style metadata references because real credit files contain sensitive information.
+## How To Interact With The Contract
 
-Corrections do not delete original records. The smart contract appends a correction record with `previousRecordId`, preserving an auditable timeline.
+Start a local Hardhat console:
 
-Only the source institution can resolve a dispute for the record it created. This keeps update authority explicit and visible.
+```bash
+npx hardhat console
+```
 
-The regulator owner can deactivate institutions. This models the need for permissioned writers in a financial data network.
+Deploy the registry:
 
+```javascript
+const [regulator, canadaBank, usBank, alice, attacker] = await ethers.getSigners();
+const Registry = await ethers.getContractFactory("CrossBorderCreditRegistry");
+const registry = await Registry.connect(regulator).deploy();
+await registry.waitForDeployment();
+await registry.getAddress();
+```
+
+Authorize institutions:
+
+```javascript
+await registry.authorizeInstitution(canadaBank.address, "Maple Bank", "Canada");
+await registry.authorizeInstitution(usBank.address, "Steel City Credit Union", "United States");
+```
+
+Register Alice's portable identity:
+
+```javascript
+const aliceIdentityHash = ethers.id("did:portable-credit:alice:demo");
+await registry.connect(alice).registerBorrower(aliceIdentityHash, "Canada");
+```
+
+Submit a Canadian credit record:
+
+```javascript
+await registry
+  .connect(canadaBank)
+  .submitCreditRecord(alice.address, "loan_repayment", 45, "ipfs://loan-repayment-q1");
+```
+
+Open a dispute:
+
+```javascript
+await registry
+  .connect(alice)
+  .openDispute(1, "ipfs://alice-dispute-wrong-delta");
+```
+
+Resolve the dispute by appending a correction:
+
+```javascript
+await registry
+  .connect(canadaBank)
+  .resolveDispute(
+    1,
+    true,
+    "ipfs://maple-bank-investigation",
+    "loan_repayment_corrected",
+    60,
+    "ipfs://loan-repayment-q1-corrected"
+  );
+```
+
+Submit a United States credit record for the same borrower:
+
+```javascript
+await registry
+  .connect(usBank)
+  .submitCreditRecord(alice.address, "credit_card_on_time_payment", 15, "ipfs://us-card-payment-april");
+```
+
+Read Alice's full record history:
+
+```javascript
+const recordIds = await registry.getBorrowerRecordIds(alice.address);
+recordIds.map((id) => id.toString());
+```
+
+Inspect one record:
+
+```javascript
+await registry.getCreditRecord(1);
+```
+
+Try an unauthorized write:
+
+```javascript
+await registry
+  .connect(attacker)
+  .submitCreditRecord(alice.address, "fake_record", -100, "ipfs://fake");
+```
+
+That transaction should revert with:
+
+```text
+only authorized institution
+```
+
+## What To Explain During The Presentation
+
+Start with the economic problem: a person with strong credit history can become credit invisible after moving across a national border because credit systems are fragmented.
+
+Then show the blockchain fit:
+
+- The borrower identity persists across jurisdictions.
+- Only approved institutions can write records.
+- Each write is tied to the institution address that created it.
+- Disputes are visible in the shared ledger.
+- Corrections are appended as new records, preserving the original report and the correction trail.
+
+During the code walkthrough, point to these contract pieces:
+
+- `Institution`: tracks authorized writers and their jurisdictions.
+- `Borrower`: stores the portable identity hash.
+- `CreditRecord`: stores credit events and links corrections with `previousRecordId`.
+- `Dispute`: stores the dispute reason, evidence hash, status, and correction record id.
+- `onlyOwner`: limits institution authorization to the regulator.
+- `onlyActiveInstitution`: prevents unauthorized credit record updates.
+
+## Expected Demo Output
+
+`npm run demo` should print:
+
+- The deployed contract address.
+- The regulator, institution, borrower, and attacker addresses.
+- Alice's identity hash.
+- The original Canadian credit record.
+- The disputed flag after Alice opens the dispute.
+- The correction record with `previousRecordId: 1`.
+- The United States credit record.
+- A failed unauthorized write with `only authorized institution`.
+- Final borrower history containing record ids `1, 2, 3`.
+
+## Design Notes
+
+Personal financial documents are not stored directly on-chain. The demo stores hashes and metadata references because real credit records require privacy-preserving storage and access controls.
+
+Corrections are append-only. The original record stays visible, and the correction record links back to it through `previousRecordId`.
+
+Only the institution that created a disputed record can resolve that dispute. This keeps the update trail accountable.
+
+The regulator can deactivate institutions, modeling the permissioned writer requirement for a financial data network.
+
+## Limitations
+
+A production version would need encrypted off-chain evidence storage, privacy-preserving identity, legal compliance across jurisdictions, credit bureau governance, and a real scoring or underwriting layer. This demo focuses only on the smart contract mechanics needed to support portable records and disputed-record corrections.
