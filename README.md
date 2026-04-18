@@ -141,9 +141,7 @@ await registry.connect(canadaBank).resolveDispute(
 Submit a United States credit record for the same borrower:
 
 ```javascript
-await registry
-  .connect(usBank)
-  .submitCreditRecord(alice.address, "credit_card_on_time_payment", 15, "ipfs://us-card-payment-april");
+await registry.connect(usBank).submitCreditRecord(alice.address, "credit_card_on_time_payment", 15, "ipfs://us-card-payment-april");
 ```
 
 Read Alice's full record history:
