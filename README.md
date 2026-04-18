@@ -137,8 +137,7 @@ await registry
     "ipfs://maple-bank-investigation",
     "loan_repayment_corrected",
     60,
-    "ipfs://loan-repayment-q1-corrected"
-  );
+    "ipfs://loan-repayment-q1-corrected");
 ```
 
 Submit a United States credit record for the same borrower:
