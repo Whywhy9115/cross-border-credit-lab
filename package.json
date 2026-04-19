@@ -6,7 +6,8 @@
   "scripts": {
     "compile": "hardhat compile",
     "test": "hardhat test",
-    "demo": "hardhat run scripts/runDemo.js"
+    "demo": "hardhat run scripts/runDemo.js",
+    "state": "hardhat run scripts/showState.js"
   },
   "keywords": [
     "blockchain",
@@ -20,4 +21,3 @@
     "hardhat": "^2.22.15"
   }
 }
-

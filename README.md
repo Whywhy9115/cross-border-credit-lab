@@ -47,6 +47,12 @@ Run the full scenario:
 npm run demo
 ```
 
+Run the state-inspection script:
+
+```bash
+npm run state
+```
+
 Run the tests:
 
 ```bash
