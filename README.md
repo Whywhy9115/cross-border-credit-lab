@@ -19,8 +19,6 @@ This is a prototype for presentation purposes, not a production credit bureau. S
 - `scripts/runDemo.js`: Main presentation demo that deploys the contract and walks through the full scenario.
 - `scripts/showState.js`: Small state-inspection script for showing borrower record history.
 - `test/CrossBorderCreditRegistry.js`: Automated tests proving the main contract rules.
-- `DEMO_SCRIPT.md`: Suggested 5-10 minute speaking flow.
-- `WHITEPAPER_ALIGNMENT.md`: Mapping between the white paper idea and the implemented contract behavior.
 
 ## How To Run
 
