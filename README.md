@@ -1,22 +1,22 @@
-# Cross-Border Credit Registry Code Demo
+# Cross-Border Credit Registry
 
 ## Overview
 
-This repository is a Hardhat code demo for a cross-border credit history system. It implements the smart contract portion of our white paper idea: a portable credit record infrastructure for consumers who move between the United States and Canada.
+This repository contains a Hardhat prototype for a cross-border credit history system. It implements the smart contract portion of a portable credit record infrastructure for consumers who move between the United States and Canada.
 
-The demo shows how blockchain can support:
+The system uses blockchain to support:
 
 1. A persistent borrower identity across jurisdictions.
 2. Permissioned credit record updates by authorized institutions.
 3. Append-only credit history, where corrections do not erase prior records.
 4. A disputed-record workflow that tracks who opened the dispute, who resolved it, and what correction was appended.
 
-This is a prototype for presentation purposes, not a production credit bureau. Sensitive financial data is represented with hashes and `ipfs://`-style metadata references instead of being stored directly on-chain.
+This is a prototype, not a production credit bureau. Sensitive financial data is represented with hashes and `ipfs://`-style metadata references instead of being stored directly on-chain.
 
 ## Repository Contents
 
 - `contracts/CrossBorderCreditRegistry.sol`: Solidity contract for borrowers, institutions, records, disputes, and corrections.
-- `scripts/runDemo.js`: Main presentation demo that deploys the contract and walks through the full scenario.
+- `scripts/runDemo.js`: Complete local scenario that deploys the contract and executes the main workflow.
 - `scripts/showState.js`: Small state-inspection script for showing borrower record history.
 - `test/CrossBorderCreditRegistry.js`: Automated tests proving the main contract rules.
 
@@ -41,7 +41,7 @@ Compile the smart contract:
 npm run compile
 ```
 
-Run the full demo:
+Run the full scenario:
 
 ```bash
 npm run demo
@@ -53,7 +53,7 @@ Run the tests:
 npm test
 ```
 
-## Main Demo Flow
+## System Scenario
 
 The main command is:
 
@@ -61,7 +61,7 @@ The main command is:
 npm run demo
 ```
 
-The script deploys a fresh local contract and uses Hardhat demo accounts for five roles:
+The script deploys a fresh local contract and uses Hardhat accounts for five roles:
 
 - Regulator: owns the registry and authorizes institutions.
 - Maple Bank: an authorized Canadian institution.
@@ -69,7 +69,7 @@ The script deploys a fresh local contract and uses Hardhat demo accounts for fiv
 - Alice: a borrower with one portable blockchain identity.
 - Attacker: an unauthorized account used to prove access control works.
 
-The script walks through this scenario:
+The scenario includes these steps:
 
 1. The regulator authorizes Maple Bank and Steel City Credit Union.
 2. Alice registers one portable borrower identity hash.
@@ -80,7 +80,7 @@ The script walks through this scenario:
 7. An unauthorized account tries to submit a fake record and is blocked by the smart contract.
 8. The final output prints Alice's full record history: original Canadian record, correction record, and United States record.
 
-## How To Interact With The Contract
+## Contract Interface
 
 Start a local Hardhat console:
 
@@ -161,17 +161,17 @@ Try an unauthorized write:
 await registry.connect(attacker).submitCreditRecord(alice.address, "fake_record", -100, "ipfs://fake");
 ```
 
-That transaction should revert with:
+That transaction reverts with:
 
 ```text
 only authorized institution
 ```
 
-## What To Explain During The Presentation
+## System Design
 
-Start with the economic problem: a person with strong credit history can become credit invisible after moving across a national border because credit systems are fragmented.
+The economic problem is credit portability. A person with strong credit history can become credit invisible after moving across a national border because credit systems are fragmented.
 
-Then show the blockchain fit:
+The blockchain design provides:
 
 - The borrower identity persists across jurisdictions.
 - Only approved institutions can write records.
@@ -179,7 +179,7 @@ Then show the blockchain fit:
 - Disputes are visible in the shared ledger.
 - Corrections are appended as new records, preserving the original report and the correction trail.
 
-During the code walkthrough, point to these contract pieces:
+The main contract components are:
 
 - `Institution`: tracks authorized writers and their jurisdictions.
 - `Borrower`: stores the portable identity hash.
@@ -188,9 +188,9 @@ During the code walkthrough, point to these contract pieces:
 - `onlyOwner`: limits institution authorization to the regulator.
 - `onlyActiveInstitution`: prevents unauthorized credit record updates.
 
-## Expected Demo Output
+## Runtime Output
 
-`npm run demo` should print:
+`npm run demo` prints:
 
 - The deployed contract address.
 - The regulator, institution, borrower, and attacker addresses.
