@@ -103,5 +103,60 @@ describe("CrossBorderCreditRegistry", function () {
         .resolveDispute(1, true, "ipfs://us-evidence", "wrong_source", 1, "ipfs://wrong")
     ).to.be.revertedWith("only source institution");
   });
-});
 
+  async function openCanadianDispute() {
+    const fixture = await deployFixture();
+    const { registry, canadaBank, alice } = fixture;
+    await registry.connect(canadaBank).submitCreditRecord(alice.address, "repayment", 45, "ipfs://original");
+    await registry.connect(alice).openDispute(1, "ipfs://borrower-evidence");
+    return fixture;
+  }
+
+  const Open = 1n, ResolvedAccepted = 2n, ResolvedRejected = 3n;
+
+  it("preserves a rejected record and closes it to further disputes", async function () {
+    const { registry, canadaBank, alice } = await openCanadianDispute();
+    const original = await registry.getCreditRecord(1);
+    await registry.connect(canadaBank).resolveDispute(1, false, "ipfs://issuer-evidence", "", 0, "");
+
+    await expect(registry.connect(alice).openDispute(1, "ipfs://new-evidence"))
+      .to.be.revertedWith("record already disputed");
+    const dispute = await registry.getDispute(1);
+    expect(dispute.status).to.equal(ResolvedRejected);
+    expect(dispute.correctionRecordId).to.equal(0n);
+    expect(dispute.institutionEvidenceHash).to.equal("ipfs://issuer-evidence");
+    expect(await registry.getCreditRecord(1)).to.deep.equal(original);
+    expect(await registry.getBorrowerRecordIds(alice.address)).to.deep.equal([1n]);
+    expect(await registry.recordCount()).to.equal(1n);
+  });
+
+  it("opens an independent dispute on an appended correction", async function () {
+    const { registry, canadaBank, alice } = await openCanadianDispute();
+    await registry.connect(canadaBank).resolveDispute(1, true, "ipfs://review", "repayment", 60, "ipfs://fixed");
+    const originalDispute = await registry.getDispute(1);
+    expect(originalDispute.status).to.equal(ResolvedAccepted);
+    expect(originalDispute.correctionRecordId).to.equal(2n);
+
+    await registry.connect(alice).openDispute(2, "ipfs://correction-evidence");
+    const correctionDispute = await registry.getDispute(2);
+    expect(correctionDispute.status).to.equal(Open);
+    expect(correctionDispute.reasonHash).to.equal("ipfs://correction-evidence");
+    expect((await registry.getCreditRecord(2)).previousRecordId).to.equal(1n);
+    expect(await registry.getDispute(1)).to.deep.equal(originalDispute);
+  });
+
+  it("keeps a dispute open during issuer deactivation and lets the reauthorized issuer resolve it", async function () {
+    const { registry, canadaBank, usBank } = await openCanadianDispute();
+    const pending = await registry.getDispute(1);
+    expect(pending.status).to.equal(Open);
+    await registry.deactivateInstitution(canadaBank.address);
+    const resolve = (issuer) => registry.connect(issuer).resolveDispute(1, false, "ipfs://review", "", 0, "");
+    await expect(resolve(canadaBank)).to.be.revertedWith("only authorized institution");
+    await expect(resolve(usBank)).to.be.revertedWith("only source institution");
+    expect(await registry.getDispute(1)).to.deep.equal(pending);
+
+    await registry.authorizeInstitution(canadaBank.address, "Maple Bank", "Canada");
+    await resolve(canadaBank);
+    expect((await registry.getDispute(1)).status).to.equal(ResolvedRejected);
+  });
+});
