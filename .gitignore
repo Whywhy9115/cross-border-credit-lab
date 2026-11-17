@@ -5,4 +5,4 @@ coverage/
 typechain-types/
 .env
 .DS_Store
-
+/trace/

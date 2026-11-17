@@ -14,7 +14,7 @@ npm run demo
 npx hardhat run scripts/captureTrace.js
 ```
 
-Each demo starts a fresh local chain. The capture script writes its full trace, an excerpt, and JSON metadata to the parent directory. Compare record IDs, values, and links across runs. For a shorter state inspection, run `npm run state`.
+Each demo starts a fresh local chain. The capture script writes its full trace, an excerpt, and JSON metadata to the repository’s `trace/` directory. Compare record IDs, values, and links across runs. For a shorter state inspection, run `npm run state`.
 
 ## Reading a correction
 
